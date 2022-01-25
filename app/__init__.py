@@ -6,7 +6,7 @@ from flask import Flask, request, Response
 from dotenv import load_dotenv
 
 from app.message_scraper import MessageScraper
-from app.google_photos_helper import GooglePhotosHelper
+# from app.google_photos_helper import GooglePhotosHelper
 
 
 logging.basicConfig()

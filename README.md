@@ -17,3 +17,15 @@ This server registers to facebook messenger events what will trigger its webhook
 ```bash
 flask run --cert=./certs/certificates.pem-chain --key=./certs/privatekey.key --port 443 --host 0.0.0.0
 ```
+
+## Docker
+
+```bash
+docker compose -f docker/docker-compose.yaml build
+```
+
+## Debugging
+``bash
+curl -H "Content-Type: application/json" -X POST "localhost:443/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "this is a test POST message"}]}]}'
+```
+use `-k` to ignore ssl stuff for local testing

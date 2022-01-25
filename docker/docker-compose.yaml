@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  flask:
+    container_name: flask
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    # expose:
+    #   - 80
+    # ports:
+    #   - 443:443
+    environment:
+      - MODULE_NAME=app.main
+      # - GUNICORN_CONF=/instance/app/gunicorn_conf.py
+    networks:
+      - flask
+
+
+  haproxy:
+      container_name: haproxy
+      image: haproxy:latest
+      restart: always
+      depends_on:
+        - flask
+      ports:
+          # - 80:80
+          - 443:443
+          - 1936:1936
+      # expose:
+      #     - 80
+      #     - 443
+      volumes:
+        - ./haproxy_conf:/usr/local/etc/haproxy:ro
+        - ../certs:/certs:ro
+      networks:
+        - flask
+      # networks:
+      #     public_net:
+      #         ipv4_address: ${HA_PROXY_IP}
+
+
+  # mosquitto:
+  #   image: eclipse-mosquitto
+  #   volumes:
+  #     - ./mosquitto:/mosquitto/config
+  #   ports:
+  #     - 1883:1883
+  #     - 8085:8085
+
+networks:
+  flask:
+    driver: bridge

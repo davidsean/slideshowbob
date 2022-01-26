@@ -69,8 +69,8 @@ def post_webhook():
                 logger.debug('got message')
                 # should only get one
                 message = entry['messaging'][0]['message']
-                mqtt = MQTTHelper()
-                mqtt.publish(os.environ.get('TOPIC'), message, 0)
+                # mqtt = MQTTHelper()
+                # mqtt.publish(os.environ.get('TOPIC'), message, 0)
 
                 if 'sender' not in entry['messaging'][0] or 'id' not in entry['messaging'][0]['sender']:
                     return Response('Invalid payload', status=400)

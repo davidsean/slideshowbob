@@ -6,16 +6,11 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
-    # expose:
-    #   - 80
-    # ports:
-    #   - 443:443
     environment:
       - MODULE_NAME=app.main
       # - GUNICORN_CONF=/instance/app/gunicorn_conf.py
     networks:
-      - flask
-
+      - bridge
 
   haproxy:
       container_name: haproxy
@@ -24,30 +19,30 @@ services:
       depends_on:
         - flask
       ports:
-          # - 80:80
+          - 80:80
           - 443:443
-          - 1936:1936
-      # expose:
-      #     - 80
-      #     - 443
       volumes:
         - ./haproxy_conf:/usr/local/etc/haproxy:ro
         - ../certs:/certs:ro
       networks:
-        - flask
-      # networks:
-      #     public_net:
-      #         ipv4_address: ${HA_PROXY_IP}
+        - bridge
 
+  mosquitto:
+    image: eclipse-mosquitto
+    volumes:
+      - ./mosquitto_conf:/mosquitto/config:rw
 
-  # mosquitto:
-  #   image: eclipse-mosquitto
-  #   volumes:
-  #     - ./mosquitto:/mosquitto/config
-  #   ports:
-  #     - 1883:1883
-  #     - 8085:8085
+    ports:
+      - 1883:1883
+    networks:
+      - bridge
+    entrypoint: /mosquitto/config/create_users.sh
+    command:  ["/usr/sbin/mosquitto", "-c","/mosquitto/config/mosquitto.conf"]
+
+    environment:
+      - PUB_PASSWORD=${PUB_PASSWORD}
+      - SUB_PASSWORD=${SUB_PASSWORD}
 
 networks:
-  flask:
+  bridge:
     driver: bridge

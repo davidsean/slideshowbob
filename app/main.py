@@ -5,8 +5,7 @@ from json import JSONDecodeError
 from flask import Flask, request, Response
 from dotenv import load_dotenv
 
-from app.message_scraper import MessageScraper
-# from app.google_photos_helper import GooglePhotosHelper
+from .message_processor import MessageProcessor
 
 
 logging.basicConfig()
@@ -95,8 +94,8 @@ def post_webhook():
                             if 'payload' in attachment:
                                 url = attachment['payload']['url']
                                 logger.info('got url: %s', url)
-                                msg_scaper = MessageScraper(url,sender_id)
-                                img = msg_scaper.process_post()
+                                msg_proc = MessageProcessor(url,sender_id)
+                                img = msg_proc.process_post()
     else:
         logger.warning('payload.object is not page or entry not present. payload: %s', payload)
         return Response('Invalid payload', status=400)

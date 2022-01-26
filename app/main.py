@@ -1,25 +1,16 @@
-import logging
 import os
+import json
+import logging
 
 from json import JSONDecodeError
 from flask import Flask, request, Response
 
-from app.message_processor import MessageProcessor
+from app.mqtt_helper import MQTTHelper
 
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-# load environmental variables from .env
-# load_dotenv()
-VERIFY_TOKEN = os.environ.get('VERIFY_TOKEN')
-PUB_PASSWORD = os.environ.get('PUB_PASSWORD')
-PAGE_ACCESS_TOKEN = os.environ.get('PAGE_ACCESS_TOKEN')
-
-if VERIFY_TOKEN is None or PUB_PASSWORD is None or PAGE_ACCESS_TOKEN is None:
-    logger.critical("Missing contents from .env file")
-    raise ValueError
 
 app = Flask(__name__)
 # Disable strict trailing slashes in URLs
@@ -78,7 +69,9 @@ def post_webhook():
                 logger.debug('got message')
                 # should only get one
                 message = entry['messaging'][0]['message']
-                # Helpers.scrape_message(message)
+                mqtt = MQTTHelper()
+                mqtt.publish(os.environ.get('TOPIC'), message, 0)
+
                 if 'sender' not in entry['messaging'][0] or 'id' not in entry['messaging'][0]['sender']:
                     return Response('Invalid payload', status=400)
                 sender_id = entry['messaging'][0]['sender']['id']
@@ -91,9 +84,13 @@ def post_webhook():
                             logger.debug('process image attachment')
                             if 'payload' in attachment:
                                 url = attachment['payload']['url']
-                                logger.info('got url: %s', url)
-                                msg_proc = MessageProcessor(url,sender_id)
-                                img = msg_proc.process_post()
+                                logger.debug('got url: %s', url)
+                                payload = {
+                                    'url':url,
+                                    'sender_id':sender_id
+                                }
+                                mqtt = MQTTHelper()
+                                mqtt.publish(os.environ.get('TOPIC'), json.dumps(payload), 0)
     else:
         logger.warning('payload.object is not page or entry not present. payload: %s', payload)
         return Response('Invalid payload', status=400)

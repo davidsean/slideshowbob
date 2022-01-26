@@ -14,9 +14,12 @@ services:
     networks:
       - bridge
     environment:
-      - PUB_PASSWORD=${PUB_PASSWORD}
       - VERIFY_TOKEN=${VERIFY_TOKEN}
       - PAGE_ACCESS_TOKEN=${PAGE_ACCESS_TOKEN}
+      - MQTT_BROKER_URL=mosquitto
+      - TOPIC=${TOPIC}
+      - PUB_PASSWORD=${PUB_PASSWORD}
+
 
   haproxy:
       container_name: haproxy
@@ -39,13 +42,14 @@ services:
       - ./mosquitto_conf:/mosquitto/config:rw
     ports:
       - 1883:1883
+    entrypoint: /mosquitto/config/init.sh
+    command:  ["/usr/sbin/mosquitto", "-c","/mosquitto/config/mosquitto.conf"]
     networks:
       - bridge
-    entrypoint: /mosquitto/config/create_users.sh
-    command:  ["/usr/sbin/mosquitto", "-c","/mosquitto/config/mosquitto.conf"]
     environment:
       - PUB_PASSWORD=${PUB_PASSWORD}
       - SUB_PASSWORD=${SUB_PASSWORD}
+      - TOPIC=${TOPIC}
 
 networks:
   bridge:

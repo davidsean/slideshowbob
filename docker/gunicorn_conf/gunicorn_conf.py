@@ -3,7 +3,7 @@
 bind = '0.0.0.0:80'
 
 wsgi_app = '/app/main.py'
-workers = 8
+workers = 1
 
 
 # pidfile = 'pidfile'

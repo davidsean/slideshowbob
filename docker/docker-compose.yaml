@@ -6,11 +6,17 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    volumes:
+      - ./gunicorn_conf:/gunicorn
     environment:
       - MODULE_NAME=app.main
-      # - GUNICORN_CONF=/instance/app/gunicorn_conf.py
+      - GUNICORN_CONF=/gunicorn/gunicorn_conf.py
     networks:
       - bridge
+    environment:
+      - PUB_PASSWORD=${PUB_PASSWORD}
+      - VERIFY_TOKEN=${VERIFY_TOKEN}
+      - PAGE_ACCESS_TOKEN=${PAGE_ACCESS_TOKEN}
 
   haproxy:
       container_name: haproxy
@@ -31,14 +37,12 @@ services:
     image: eclipse-mosquitto
     volumes:
       - ./mosquitto_conf:/mosquitto/config:rw
-
     ports:
       - 1883:1883
     networks:
       - bridge
     entrypoint: /mosquitto/config/create_users.sh
     command:  ["/usr/sbin/mosquitto", "-c","/mosquitto/config/mosquitto.conf"]
-
     environment:
       - PUB_PASSWORD=${PUB_PASSWORD}
       - SUB_PASSWORD=${SUB_PASSWORD}

@@ -3,9 +3,8 @@ import os
 
 from json import JSONDecodeError
 from flask import Flask, request, Response
-from dotenv import load_dotenv
 
-from .message_processor import MessageProcessor
+from app.message_processor import MessageProcessor
 
 
 logging.basicConfig()
@@ -13,19 +12,18 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # load environmental variables from .env
-load_dotenv()
+# load_dotenv()
 VERIFY_TOKEN = os.environ.get('VERIFY_TOKEN')
+PUB_PASSWORD = os.environ.get('PUB_PASSWORD')
+PAGE_ACCESS_TOKEN = os.environ.get('PAGE_ACCESS_TOKEN')
+
+if VERIFY_TOKEN is None or PUB_PASSWORD is None or PAGE_ACCESS_TOKEN is None:
+    logger.critical("Missing contents from .env file")
+    raise ValueError
 
 app = Flask(__name__)
 # Disable strict trailing slashes in URLs
 app.url_map.strict_slashes = False
-
-# ensure the instance folder exists
-try:
-    os.makedirs(app.instance_path)
-except OSError:
-    pass
-
 
 @app.route('/', methods=['GET'])
 def hello()-> Response:

@@ -10,11 +10,11 @@ RUN apt update && apt upgrade -y && apt install -y git sudo locales && locale-ge
 
 
 # Grab dependencies and generate locale
-WORKDIR /instance
+WORKDIR /
 
 # add package dependancy indices
-COPY apt-packages.txt /instance/apt-packages.txt
-COPY requirements.txt /instance/requirements.txt
+COPY apt-packages.txt /apt-packages.txt
+COPY requirements.txt /requirements.txt
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=America/New_York \
     xargs -a apt-packages.txt apt install \
@@ -22,5 +22,4 @@ RUN DEBIAN_FRONTEND=noninteractive TZ=America/New_York \
 
 RUN pip install -r requirements.txt
 
-ADD ./app /instance/app
-# ADD ./certs /instance/certs
+ADD ./app /app

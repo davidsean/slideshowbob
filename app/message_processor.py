@@ -7,7 +7,7 @@ from io import BytesIO
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
-from .mqtt_helper import MQTTHelper
+# from app.mqtt_helper import MQTTHelper
 
 
 class MessageProcessor:

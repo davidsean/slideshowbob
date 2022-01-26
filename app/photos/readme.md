@@ -1,1 +1,0 @@
-photos are saved here
